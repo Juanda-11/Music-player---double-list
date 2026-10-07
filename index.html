@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-palette="aurora">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎵%3C/text%3E%3C/svg%3E" />
+  <title>Player · Doubly Linked List</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" />
+</head>
+<body>
+<div class="app">
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <h1 data-i18n="app">My player</h1>
+    <form class="searchbox" id="search-form">
+      <span aria-hidden="true">⌕</span>
+      <input id="q" data-i18n-ph="searchPh" autocomplete="off" />
+      <button class="btn pri" data-i18n="go">Search</button>
+    </form>
+    <div class="tools">
+      <button class="chip" id="btn-sp"></button>
+      <button class="chip" id="btn-palette" data-i18n-label="palette">●</button>
+      <button class="chip" id="btn-lang" data-i18n-label="lang">ES</button>
+      <button class="chip" id="btn-theme" data-i18n-label="theme">◐</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- ============ LEFT: SONG + ARTIST ============ -->
+    <div class="leftcol">
+      <section class="card player" id="player">
+        <div class="glow" id="glow"></div>
+        <div class="phead">
+          <div class="seg" data-seg="stage">
+            <button data-tab="disc" data-i18n="disc">Disc</button>
+            <button data-tab="lyrics" data-i18n="lyrics">Lyrics</button>
+          </div>
+          <button class="ib sm2" id="btn-fs" data-i18n-label="fullscreen">⛶</button>
+        </div>
+        <div class="stage">
+          <div class="panel" data-panel="stage:disc"><div class="disc" id="disc"><div class="label" id="label"></div></div></div>
+          <div class="panel" data-panel="stage:lyrics"><div class="lyrics" id="lyrics"></div></div>
+        </div>
+        <div class="info">
+          <b id="np-title"></b><span id="np-artist"></span><small id="np-album"></small><small id="np-note" class="note"></small>
+        </div>
+        <input type="range" id="seek" min="0" max="1" step="0.1" value="0" data-i18n-label="seek" />
+        <div class="times"><span id="t-cur">0:00</span><span id="t-tot">0:00</span></div>
+        <div class="ctrl">
+          <button class="ib" id="btn-prev" data-i18n-label="prev">⏮</button>
+          <button class="ib main" id="btn-play" data-i18n-label="play">▶</button>
+          <button class="ib" id="btn-next" data-i18n-label="next">⏭</button>
+        </div>
+        <div class="extra">
+          <button class="btn danger" id="btn-del" data-i18n="delCurrent">Delete song</button>
+          <input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" data-i18n-label="volume" />
+        </div>
+      </section>
+
+      <section class="card artist" id="artist" hidden>
+        <div class="ahead">
+          <div class="aphoto" id="a-photo"></div>
+          <div><small data-i18n="artistTitle">About the artist</small><h3 id="a-name"></h3><small id="a-genre"></small></div>
+        </div>
+        <p class="abio" id="a-bio"></p>
+        <a class="alink" id="a-link" target="_blank" rel="noopener" hidden data-i18n="wiki">Wikipedia · read more</a>
+        <p class="hint" id="a-more-t"></p>
+        <ul class="list" id="a-top"></ul>
+        <div id="a-sim-wrap" hidden><p class="hint" data-i18n="similar">Similar artists</p><div class="chips" id="a-sim"></div></div>
+      </section>
+    </div>
+
+    <!-- ============ CENTER: LIBRARY ============ -->
+    <section class="card library">
+      <div class="banner">
+        <div class="collage" id="collage"></div>
+        <div class="bmeta">
+          <h2 id="list-title"></h2>
+          <small id="list-meta"></small>
+          <div class="actions">
+            <button class="ib main sm" id="btn-playall" data-i18n-label="play">▶</button>
+            <button class="ib" id="btn-shuffle" data-i18n-label="shuffle">⇄</button>
+            <label class="tog"><input type="checkbox" id="auto-remove" checked /><span data-i18n="removeDone">Remove when finished</span></label>
+            <button class="btn danger" id="btn-reset" data-i18n="resetList">Clear list</button>
+          </div>
+        </div>
+      </div>
+      <div class="seg" data-seg="lib">
+        <button data-tab="queue" data-i18n="queue">Queue</button>
+        <button data-tab="add" data-i18n="add">Add</button>
+        <button data-tab="import" data-i18n="imp">Import</button>
+      </div>
+
+      <div class="libbody">
+        <div class="panel" data-panel="lib:queue">
+          <p class="hint dh" data-i18n="dragHint">Press and hold a song, then drag it wherever you like.</p>
+          <div class="thead"><span>#</span><span data-i18n="colTitle">Title</span><span class="alb" data-i18n="colAlbum">Album</span><span>⏱</span></div>
+          <ul class="list" id="list"></ul>
+        </div>
+
+        <div class="panel" data-panel="lib:add">
+          <div class="pos">
+            <div><label for="add-where" data-i18n="position">Insert position</label>
+              <select id="add-where">
+                <option value="last" data-i18n="last">At the end</option>
+                <option value="first" data-i18n="first">At the start</option>
+                <option value="index" data-i18n="atIndex">At an index</option>
+              </select></div>
+            <div id="index-row" hidden><label for="add-index" data-i18n="index">Index (from 0)</label>
+              <input id="add-index" type="number" min="0" value="1" /></div>
+          </div>
+          <ul class="list" id="results"></ul>
+          <label class="file"><span data-i18n="local">Upload audio files</span><input type="file" id="files" accept="audio/*" multiple /></label>
+          <p class="hint" data-i18n="localHint">MP3, WAV, M4A… play in full.</p>
+        </div>
+
+        <div class="panel" data-panel="lib:import">
+          <h3>Spotify</h3><div id="sp-box" class="box"></div>
+          <div id="pl-wrap" hidden><p class="hint" data-i18n="playlists">Your Spotify playlists (tap one to import it)</p><ul class="list" id="pl-list"></ul></div>
+          <div id="artists-wrap" hidden><p class="hint" data-i18n="artists">Artists you follow</p><div class="chips" id="artists"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT: ALBUMS (expands on hover) ============ -->
+    <aside class="albumslot"><nav class="albumrail" id="albumrail" data-i18n-label="albumsBar"></nav></aside>
+  </main>
+</div>
+
+<!-- ============ FULL SCREEN: cover art ============ -->
+<div class="fs" id="fs" hidden>
+  <div class="fs-bg" id="fs-bg"></div>
+  <div class="fs-cover" id="fs-cover"></div>
+  <div class="fs-ui">
+    <div class="fs-info"><b id="fs-title"></b><span id="fs-artist"></span></div>
+    <input type="range" id="fs-seek" min="0" max="1" step="0.1" value="0" data-i18n-label="seek" />
+    <div class="ctrl">
+      <button class="ib" id="fs-prev" data-i18n-label="prev">⏮</button>
+      <button class="ib main" id="fs-play" data-i18n-label="play">▶</button>
+      <button class="ib" id="fs-next" data-i18n-label="next">⏭</button>
+      <button class="ib" id="fs-close" data-i18n-label="close">✕</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
